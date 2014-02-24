@@ -17,7 +17,7 @@ public class SlidingWindow {
     private List<Double> diffMinMax = new ArrayList<Double>();
     private List<Double> ratios = new ArrayList<Double>();
     private List<Double> correlations = new ArrayList<Double>();
-    private double magnitudeArea = 0.0;
+    private double magnitudeMean = 0.0;
     private double signalMagnitudeArea = 0.0;
     
     public SlidingWindow(List<RotatedDataTime> values) {
@@ -28,6 +28,9 @@ public class SlidingWindow {
         calculateStds();
         calculateDiffMinMax();
         calculateRatios();
+        calculateCorrelations();
+        calculateMagnitudeMean();
+        calculateSignalMagnitudeArea();
     }
     
     public static void SetFrequency(int frequency) {
@@ -178,7 +181,7 @@ public class SlidingWindow {
                 Double correlation = covariance / 
                         (stds.get(i) * stds.get(j));
                 
-                if (Double.isNaN(correlation)) {
+                if (Double.isNaN(correlation) || Double.isInfinite(correlation)) {
                     correlation = 0.0;
                 }
                 
@@ -199,24 +202,34 @@ public class SlidingWindow {
     private Double calculateCovariance(List<Double> first, List<Double> second) {
         
         Double covariance = 0.0, sumX = 0.0, sumY = 0.0, product = 0.0; 
-        double minDelta = (double)1000000000 / frequency;
-        double lastTimestamp = 0.0; int numberOfElements = 0;
       
         for (int i = 0; i < first.size(); i++) {
-            if (first.get(i).getTime() - lastTimestamp >= minDelta) {
-                product += (first.get(i).getValue() * second.get(i).getValue());
-                sumX += first.get(i).getValue();
-                sumY += second.get(i).getValue();
-                
-                numberOfElements++;
-                lastTimestamp = first.get(i).getTime();
-            }
+            
+            product += (first.get(i) * second.get(i));
+            sumX += first.get(i);
+            sumY += second.get(i);   
         }
         
-        covariance = (product / numberOfElements) - 
-                ((sumX * sumY) / Math.pow(numberOfElements, 2));
+        covariance = (product / first.size()) - 
+                ((sumX * sumY) / Math.pow(first.size(), 2));
         
         return covariance;
+    }
+    
+    public void calculateMagnitudeMean() {
+        magnitudeMean = Math.sqrt(Math.pow(means.get(0), 2) + Math.pow(means.get(1), 2)
+            + Math.pow(means.get(2), 2));
+    }
+    
+    public void calculateSignalMagnitudeArea() {
+        
+        for (int i = 0; i < values.size(); i++) {
+            
+            signalMagnitudeArea += Math.abs(values.get(i).getX() + Math.abs(values.get(i).getY())
+                + Math.abs(values.get(i).getZ()));
+        }
+        
+        signalMagnitudeArea /= values.size();
     }
     
     public List<Double> getAllFeatures() {
@@ -228,6 +241,11 @@ public class SlidingWindow {
             features.add(variances.get(i));
             features.add(diffMinMax.get(i));
         }
+        
+        features.addAll(ratios);
+        features.addAll(correlations);
+        features.add(magnitudeMean);
+        features.add(signalMagnitudeArea);
         
         return features;
     }
