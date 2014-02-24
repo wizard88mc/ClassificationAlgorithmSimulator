@@ -21,7 +21,6 @@ import java.util.List;
 public class SqliteDatabaseExtractor {
     private File db_path;
     private Connection connection = null;
-    private double min_diff_for_next_batch = 1000000000;
     private String dbAccelerometer = "samples_accelerometer";
     //private String dbAccelerometer = "samples";
     private String dbLinear = "samples_linear";

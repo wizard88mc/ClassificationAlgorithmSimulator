@@ -1,0 +1,300 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package graphs;
+
+import Models.DataTime;
+import Models.Result;
+import Models.SlidingWindow;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ItemEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import Models.RotatedDataTime;
+
+/**
+ *
+ * @author ark0n3
+ */
+public class AllDataGraph extends javax.swing.JFrame {
+
+    public final static int time_divisor = 10000000;
+    private boolean linear;
+    private XYSeriesCollection dataset;
+    private List<XYSeries> series_container = new ArrayList<XYSeries>();
+    private JFreeChart chart;
+    private List<Result> results;
+    private List<SlidingWindow> windows;
+
+    private void addPlot() {
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setMinimumSize(new Dimension(1024, 768));
+        chart = ChartFactory.createXYLineChart(
+                "Test result",
+                "Timestamp",
+                "m/s^2",
+                this.createDataset(),
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false);
+        chart.setBackgroundPaint(Color.LIGHT_GRAY);
+
+        XYPlot xyplot = chart.getXYPlot();
+        xyplot.setRangeCrosshairVisible(true);
+        xyplot.setDomainCrosshairVisible(true);
+        xyplot.setDomainCrosshairLockedOnData(false);
+        xyplot.setBackgroundPaint(Color.white);
+        xyplot.setRangePannable(true);
+        xyplot.setDomainPannable(true);
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setDomainZoomable(true);
+        chartPanel.setRangeZoomable(true);
+        chartPanel.setMouseWheelEnabled(true);
+
+        this.mainPanel.add(chartPanel, BorderLayout.CENTER);
+        this.setVisible(true);
+        
+    }
+
+    /**
+     * 
+     * @param batch
+     * @param db_extractor
+     * @param accelerometer
+     * @param accelerometerNoGravity
+     * @param linear
+     * @param rotation 
+     */
+    public AllDataGraph(List<Result> results, List<SlidingWindow> slidingWindows) {
+        
+        this.results = results; this.windows = slidingWindows;
+        initComponents();
+        addPlot();
+    }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
+    public JLabel getTxtSelected() {
+        return txtSelected;
+    }
+
+    private XYDataset createDataset() {
+        
+        dataset = new XYSeriesCollection();
+        XYSeries seriesX = new XYSeries("X"), seriesY = new XYSeries("Y"),
+                seriesZ = new XYSeries("Z"), seriesCoefficient = new XYSeries("Coefficient"),
+                seriesClassification = new XYSeries("Classification");
+        
+        for (SlidingWindow window: windows) {
+            List<RotatedDataTime> values = window.getValues();
+            
+            for (int i = 0; i < values.size(); i++) {
+                seriesX.add(values.get(i).getTimestamp(), values.get(i).getX());
+                seriesY.add(values.get(i).getTimestamp(), values.get(i).getY());
+                seriesZ.add(values.get(i).getTimestamp(), values.get(i).getZ());
+            }
+        }
+        
+        for (Result result: results) {
+            
+            seriesCoefficient.add(result.getStartTimestamp(), result.getClassificationCoefficient());
+            seriesCoefficient.add(result.getEndTimestamp(), result.getClassificationCoefficient());
+            seriesClassification.add(result.getStartTimestamp(), result.getClassificationInt());
+            seriesClassification.add(result.getEndTimestamp(), result.getClassificationInt());
+            
+        }
+        
+        series_container.add(seriesX); series_container.add(seriesY); series_container.add(seriesZ);
+        series_container.add(seriesCoefficient); series_container.add(seriesClassification);
+        dataset.addSeries(seriesX); dataset.addSeries(seriesY); dataset.addSeries(seriesZ);
+        dataset.addSeries(seriesCoefficient); dataset.addSeries(seriesClassification);
+        
+        return dataset;
+    }
+
+    private void addSeries(int series_idx) {
+        dataset.addSeries(series_container.get(series_idx));
+    }
+
+    private void removeSeries(int series_idx) {
+        dataset.removeSeries(series_container.get(series_idx));
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        txtSelected = new javax.swing.JLabel();
+        mainPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        checkX = new javax.swing.JCheckBox();
+        checkY = new javax.swing.JCheckBox();
+        checkZ = new javax.swing.JCheckBox();
+        checkV = new javax.swing.JCheckBox();
+        jPanel4 = new javax.swing.JPanel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel1.add(txtSelected, java.awt.BorderLayout.PAGE_START);
+
+        mainPanel.setLayout(new java.awt.BorderLayout());
+        mainPanel.add(jLabel1, java.awt.BorderLayout.CENTER);
+
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
+
+        checkX.setSelected(true);
+        checkX.setText("X");
+        checkX.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkXItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkX);
+
+        checkY.setSelected(true);
+        checkY.setText("Y");
+        checkY.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkYItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkY);
+
+        checkZ.setSelected(true);
+        checkZ.setText("Z");
+        checkZ.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkZItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkZ);
+
+        checkV.setSelected(true);
+        checkV.setText("(X+Y) / 2");
+        checkV.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkVStateChanged(evt);
+            }
+        });
+        checkV.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkVItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkV);
+
+        jPanel2.add(jPanel3, java.awt.BorderLayout.LINE_START);
+
+        mainPanel.add(jPanel2, java.awt.BorderLayout.PAGE_END);
+
+        mainPanel.add(jPanel4, java.awt.BorderLayout.PAGE_START);
+
+        jPanel1.add(mainPanel, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+
+        jMenu1.setText("File");
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.META_MASK));
+        jMenuItem1.setText("Close");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
+        pack();
+    }// </editor-fold>                                      
+
+    private void checkVStateChanged(javax.swing.event.ChangeEvent evt) {                                    
+    }                                   
+
+    private void checkVItemStateChanged(java.awt.event.ItemEvent evt) {                                        
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(3);
+        } else {
+            removeSeries(3);
+        }
+    }                                       
+
+    private void checkZItemStateChanged(java.awt.event.ItemEvent evt) {                                        
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(2);
+        } else {
+            removeSeries(2);
+        }
+    }                                       
+
+    private void checkYItemStateChanged(java.awt.event.ItemEvent evt) {                                        
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(1);
+        } else {
+            removeSeries(1);
+        }
+    }                                       
+
+    private void checkXItemStateChanged(java.awt.event.ItemEvent evt) {                                        
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            addSeries(0);
+        } else {
+            removeSeries(0);
+        }
+    }                                          
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        this.dispose();
+    }                                          
+
+    // Variables declaration - do not modify
+    private javax.swing.JCheckBox checkV;
+    private javax.swing.JCheckBox checkX;
+    private javax.swing.JCheckBox checkY;
+    private javax.swing.JCheckBox checkZ;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel mainPanel;
+    private javax.swing.JLabel txtSelected;
+    // End of variables declaration                   
+}

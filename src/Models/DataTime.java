@@ -1,8 +1,9 @@
 package Models;
 
 /**
- *
- * @author Matteo
+ * This class is responsible to manage the data relative to a single time 
+ * instant, with the x, y and z values + the timestamp
+ * @author Matteo Ciman
  */
 public abstract class DataTime {
     
@@ -26,6 +27,14 @@ public abstract class DataTime {
     
     public double getZ() {
         return z;
+    }
+    
+    public double getTimestamp() {
+        return timestamp;
+    }
+    
+    public void setNewValues(double x, double y, double z) {
+        this.x = x; this.y = y; this.z = z;
     }
     
 }
