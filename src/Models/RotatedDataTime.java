@@ -23,7 +23,7 @@ public class RotatedDataTime extends DataTime {
         double alpha = 2 * Math.asin(norm);
         
         double xForRotation = rotationX / norm, yForRotation = rotationY / norm, zForRotation = rotationZ / norm;
-        double xSquare = Math.pow(x, 2), ySquare = Math.pow(y, 2), zSquare = Math.pow(z, 2);
+        double xSquare = Math.pow(xForRotation, 2), ySquare = Math.pow(yForRotation, 2), zSquare = Math.pow(zForRotation, 2);
         
         double sinAlpha = Math.sin(alpha), cosAlpha = Math.cos(alpha);
         
@@ -33,11 +33,18 @@ public class RotatedDataTime extends DataTime {
                 (((1 - cosAlpha) * xForRotation * yForRotation) - sinAlpha * zForRotation) * yFirst +
                 (((1 - cosAlpha) * xForRotation * zForRotation) + sinAlpha * y) * zFirst);
         
-        y =((((1 - cosAlpha) * yForRotation * xForRotation) + sinAlpha * zForRotation) * xFirst +
+        y = ((((1 - cosAlpha) * yForRotation * xForRotation) + sinAlpha * zForRotation) * xFirst +
                 (ySquare + (1 - ySquare) * cosAlpha) * yFirst +
                 (((1 - cosAlpha) * yForRotation * zForRotation) - sinAlpha * xForRotation) * zFirst);
+        
         z = ((((1 - cosAlpha) * zForRotation * xForRotation) - sinAlpha * yForRotation) * xFirst +
                         ((1 - cosAlpha) * zForRotation * yForRotation + sinAlpha * xForRotation) * yFirst +
                         (zSquare + (1 - zSquare) * cosAlpha) * zFirst);
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        RotatedDataTime clone = (RotatedDataTime)super.clone();
+        return clone;
     }
 }

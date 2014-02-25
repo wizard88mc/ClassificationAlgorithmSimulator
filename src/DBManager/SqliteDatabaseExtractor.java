@@ -53,13 +53,14 @@ public class SqliteDatabaseExtractor {
      * @param linear: use the linear values or not
      * @return the set of DataTime from the DB
      */
-    public List<DataTime> getListPoints(boolean linear) {
-        List<DataTime> points = new ArrayList<>();
+    public List<DataTimeWithRotationValues> getListPoints(boolean linear) {
+        List<DataTimeWithRotationValues> points = new ArrayList<>();
         
         try {
             connect();
             
-            String query = "SELECT * FROM " + getRightDB(linear) + "ORDER BY timestamp";
+            //String query = "SELECT * FROM " + getRightDB(linear) + " ORDER BY timestamp";
+            String query = "SELECT * FROM " + getRightDB(linear) + " WHERE action=\"NON_STAIR\" AND trunk=7";
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             

@@ -5,7 +5,7 @@ package Models;
  * instant, with the x, y and z values + the timestamp
  * @author Matteo Ciman
  */
-public abstract class DataTime {
+public class DataTime extends Object{
     
     protected double timestamp;
     protected double x;
@@ -22,7 +22,7 @@ public abstract class DataTime {
     }
     
     public double getY() {
-        return x;
+        return y;
     }
     
     public double getZ() {
@@ -37,4 +37,8 @@ public abstract class DataTime {
         this.x = x; this.y = y; this.z = z;
     }
     
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

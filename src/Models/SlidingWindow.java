@@ -11,6 +11,8 @@ public class SlidingWindow {
     
     private List<RotatedDataTime> values;
     private static int FREQUENCY = 1;
+    private static int OVERLAPPING_WINDOWS = 4;
+    private static double WINDOW_DURATION = 0.0;
     private List<Double> means = new ArrayList<Double>();
     private List<Double> stds = new ArrayList<Double>();
     private List<Double> variances = new ArrayList<Double>();
@@ -37,6 +39,18 @@ public class SlidingWindow {
         SlidingWindow.FREQUENCY = frequency;
     }
     
+    public static void SetWindowDuration(double duration) {
+        SlidingWindow.WINDOW_DURATION = duration;
+    }
+    
+    public static double GetMinDistanceNextSlidingWindow() {
+        return SlidingWindow.WINDOW_DURATION / (double)OVERLAPPING_WINDOWS;
+    }
+    
+    public static double GetWindowDuration() {
+        return SlidingWindow.WINDOW_DURATION;
+    }
+    
     public static double getMinDelta() {
         if (SlidingWindow.FREQUENCY != 0) {
             return (double)1000000000 / SlidingWindow.FREQUENCY;
@@ -53,24 +67,19 @@ public class SlidingWindow {
     private void calculateMeans() {
         
         double meanX = 0.0, meanY = 0.0, meanZ = 0.0, meanV = 0.0, meanXAndY = 0.0;
-        double lastTimestamp = values.get(0).timestamp; int elements = 0;
         
         for (int i = 0; i < values.size(); i++) {
-            
-            if (i != 0 && values.get(0).timestamp - lastTimestamp >= getMinDelta()) {
-                meanX += values.get(i).getX();
-                meanY += values.get(i).getY();
-                meanZ += values.get(i).getZ();
-                meanV += getV(i);
-                meanXAndY += ((values.get(i).getX() + values.get(i).getY()) / 2.0);
-                
-                lastTimestamp = values.get(i).timestamp;
-                elements++;
-            }
+           
+            meanX += values.get(i).getX();
+            meanY += values.get(i).getY();
+            meanZ += values.get(i).getZ();
+            meanV += getV(i);
+            meanXAndY += ((values.get(i).getX() + values.get(i).getY()) / 2.0);
+           
         }
         
-        meanX /= elements; meanY /= elements; meanZ /= elements; 
-        meanV /= elements; meanXAndY /= elements;
+        meanX /= values.size(); meanY /= values.size(); meanZ /= values.size(); 
+        meanV /= values.size(); meanXAndY /= values.size();
         
         means.add(meanX); means.add(meanY); means.add(meanZ); means.add(meanV);
         means.add(meanXAndY);   
@@ -83,24 +92,18 @@ public class SlidingWindow {
         
         double varianceX = 0.0, varianceY = 0.0, varianceZ = 0.0, varianceV = 0.0, 
                 varianceXAndY = 0.0;
-        int numberElements = 0; double lastTimestamp = values.get(0).timestamp;
         
         for (int i = 0; i < values.size(); i++) {
             
-            if (i != 0 && values.get(i).timestamp - lastTimestamp >= getMinDelta()) {
-                
-                varianceX += Math.pow(values.get(i).getX() - means.get(0), 2);
-                varianceY += Math.pow(values.get(i).getY() - means.get(1), 2);
-                varianceZ += Math.pow(values.get(i).getZ() - means.get(2), 2);
-                varianceV += Math.pow(getV(i) - means.get(3), 2);
-                varianceXAndY += Math.pow(((values.get(i).getX() + values.get(i).getY()) / 2.0) - means.get(4), 2);
-                lastTimestamp = values.get(i).timestamp;
-                numberElements++;
-            }
+            varianceX += Math.pow(values.get(i).getX() - means.get(0), 2);
+            varianceY += Math.pow(values.get(i).getY() - means.get(1), 2);
+            varianceZ += Math.pow(values.get(i).getZ() - means.get(2), 2);
+            varianceV += Math.pow(getV(i) - means.get(3), 2);
+            varianceXAndY += Math.pow(((values.get(i).getX() + values.get(i).getY()) / 2.0) - means.get(4), 2);
         }
         
-        varianceX /= numberElements; varianceY /= numberElements; varianceZ /= numberElements;
-        varianceV /= numberElements; varianceXAndY /= numberElements;
+        varianceX /= values.size(); varianceY /= values.size(); varianceZ /= values.size();
+        varianceV /= values.size(); varianceXAndY /= values.size();
         
         variances.add(varianceX); variances.add(varianceY); variances.add(varianceZ);
         variances.add(varianceV); variances.add(varianceXAndY);
@@ -164,6 +167,12 @@ public class SlidingWindow {
         
         List<ArrayList<Double>> setOfValues = new ArrayList<ArrayList<Double>>();
         
+        setOfValues.add(new ArrayList<Double>());
+        setOfValues.add(new ArrayList<Double>());
+        setOfValues.add(new ArrayList<Double>());
+        setOfValues.add(new ArrayList<Double>());
+        setOfValues.add(new ArrayList<Double>());
+        
         for (int i = 0; i < values.size(); i++) {
             setOfValues.get(0).add(values.get(i).getX());
             setOfValues.get(1).add(values.get(i).getY());
@@ -187,7 +196,6 @@ public class SlidingWindow {
                 
                 correlations.add(correlation);
             }
-            
         }
     }
     

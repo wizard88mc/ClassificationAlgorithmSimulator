@@ -38,7 +38,7 @@ public class AllDataGraph extends javax.swing.JFrame {
     private List<XYSeries> series_container = new ArrayList<XYSeries>();
     private JFreeChart chart;
     private List<Result> results;
-    private List<SlidingWindow> windows;
+    private List<List<DataTime>> windows;
 
     private void addPlot() {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -80,7 +80,7 @@ public class AllDataGraph extends javax.swing.JFrame {
      * @param linear
      * @param rotation 
      */
-    public AllDataGraph(List<Result> results, List<SlidingWindow> slidingWindows) {
+    public AllDataGraph(List<Result> results, List<List<DataTime>> slidingWindows) {
         
         this.results = results; this.windows = slidingWindows;
         initComponents();
@@ -102,22 +102,21 @@ public class AllDataGraph extends javax.swing.JFrame {
                 seriesZ = new XYSeries("Z"), seriesCoefficient = new XYSeries("Coefficient"),
                 seriesClassification = new XYSeries("Classification");
         
-        for (SlidingWindow window: windows) {
-            List<RotatedDataTime> values = window.getValues();
+        for (List<DataTime> window: windows) {
             
-            for (int i = 0; i < values.size(); i++) {
-                seriesX.add(values.get(i).getTimestamp(), values.get(i).getX());
-                seriesY.add(values.get(i).getTimestamp(), values.get(i).getY());
-                seriesZ.add(values.get(i).getTimestamp(), values.get(i).getZ());
+            for (int i = 0; i < window.size(); i++) {
+                seriesX.add(window.get(i).getTimestamp() / 1000000000, window.get(i).getX());
+                seriesY.add(window.get(i).getTimestamp() / 1000000000, window.get(i).getY());
+                seriesZ.add(window.get(i).getTimestamp() / 1000000000, window.get(i).getZ());
             }
         }
         
         for (Result result: results) {
             
-            seriesCoefficient.add(result.getStartTimestamp(), result.getClassificationCoefficient());
-            seriesCoefficient.add(result.getEndTimestamp(), result.getClassificationCoefficient());
-            seriesClassification.add(result.getStartTimestamp(), result.getClassificationInt());
-            seriesClassification.add(result.getEndTimestamp(), result.getClassificationInt());
+            seriesCoefficient.add(result.getStartTimestamp() / 1000000000, result.getClassificationCoefficient());
+            seriesCoefficient.add(result.getEndTimestamp() / 1000000000, result.getClassificationCoefficient());
+            seriesClassification.add(result.getStartTimestamp() / 1000000000, result.getClassificationInt());
+            seriesClassification.add(result.getEndTimestamp() / 1000000000, result.getClassificationInt());
             
         }
         
@@ -155,7 +154,8 @@ public class AllDataGraph extends javax.swing.JFrame {
         checkX = new javax.swing.JCheckBox();
         checkY = new javax.swing.JCheckBox();
         checkZ = new javax.swing.JCheckBox();
-        checkV = new javax.swing.JCheckBox();
+        checkCoefficient = new javax.swing.JCheckBox();
+        checkClassification = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -200,19 +200,23 @@ public class AllDataGraph extends javax.swing.JFrame {
         });
         jPanel3.add(checkZ);
 
-        checkV.setSelected(true);
-        checkV.setText("(X+Y) / 2");
-        checkV.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                checkVStateChanged(evt);
-            }
-        });
-        checkV.addItemListener(new java.awt.event.ItemListener() {
+        checkCoefficient.setSelected(true);
+        checkCoefficient.setText("Coefficient Value");
+        checkCoefficient.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 checkVItemStateChanged(evt);
             }
         });
-        jPanel3.add(checkV);
+        jPanel3.add(checkCoefficient);
+        
+        checkClassification.setSelected(true);
+        checkClassification.setText("Classification Value");
+        checkClassification.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkVItemStateChanged(evt);
+            }
+        });
+        jPanel3.add(checkClassification);
 
         jPanel2.add(jPanel3, java.awt.BorderLayout.LINE_START);
 
@@ -279,10 +283,11 @@ public class AllDataGraph extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         this.dispose();
-    }                                          
+    } 
 
     // Variables declaration - do not modify
-    private javax.swing.JCheckBox checkV;
+    private javax.swing.JCheckBox checkCoefficient;
+    private javax.swing.JCheckBox checkClassification;
     private javax.swing.JCheckBox checkX;
     private javax.swing.JCheckBox checkY;
     private javax.swing.JCheckBox checkZ;
