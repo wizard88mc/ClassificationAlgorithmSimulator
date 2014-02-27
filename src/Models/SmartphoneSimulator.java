@@ -22,19 +22,16 @@ public class SmartphoneSimulator {
     private double historyCoefficientValue = 1.0;
     private boolean bufferFull = false;
     private boolean linear = false;
-    private boolean shutDownClassificationAfterStair = false;
-    private double lastTimestampOfStairWindow = 0.0;
     private double tresholdForStep = 0.0;
     private List<RotatedDataTime> valuesForSlidingWindow = new ArrayList<RotatedDataTime>();
     private List<List<DataTime>> valuesSlidingWindows = new ArrayList<>();
-    private Classifier classifier = new Classifier();
     private int numberOfStairs = 0;
     
     
     public SmartphoneSimulator(List<DataTimeWithRotationValues> values, double bufferDuration, 
             boolean linear, boolean shutDownClassificationAfterStairs) {
         this.values = values; this.bufferDuration = bufferDuration; 
-        this.linear = linear; this.shutDownClassificationAfterStair = shutDownClassificationAfterStairs;
+        this.linear = linear; 
     }
     
     public List<Result> actAsSmartphone() {
@@ -43,8 +40,7 @@ public class SmartphoneSimulator {
         
         for (int i = 0; i < values.size(); i++) {
             
-            if (values.get(i).getTimestamp() > lastTimestampOfStairWindow && 
-                    ((buffer.size() == 0) || (values.get(i).timestamp - buffer.get(buffer.size() - 1).timestamp) > SlidingWindow.getMinDelta())) {
+            if ((values.get(i).timestamp - buffer.get(buffer.size() - 1).timestamp) > SlidingWindow.getMinDelta()) {
             
                 if (buffer.size() > 0 && (values.get(i).timestamp - buffer.get(0).timestamp 
                         > bufferDuration)) {
@@ -77,8 +73,8 @@ public class SmartphoneSimulator {
                      * Sliding Window already completed, make classification
                      * with this data
                      */
-                    if (valuesForSlidingWindow.size() > 0 && finalValue.timestamp - valuesForSlidingWindow.get(0).timestamp
-                            > SlidingWindow.GetWindowDuration()) {
+                    if (valuesForSlidingWindow.size() > 0 && valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).z
+                            <= 0 && finalValue.z >= 0) {
 
                         SlidingWindow window = new SlidingWindow(valuesForSlidingWindow);
                         
@@ -98,7 +94,9 @@ public class SmartphoneSimulator {
                         
                         double classificationOutput = 0;
                         try {
+                            
                             classificationOutput = Classifier.classify(allFeatures.toArray()) * historyCoefficientValue;
+                            
                             listResults.add(new Result(valuesForSlidingWindow.get(0).timestamp, 
                                 valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp,
                                      classificationOutput));
@@ -116,23 +114,7 @@ public class SmartphoneSimulator {
                             numberOfStairs++;
                         }
                         
-                        if (classificationOutput > tresholdForStep && shutDownClassificationAfterStair) {
-                            
-                            lastTimestampOfStairWindow = valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).getTimestamp();
-                            valuesForSlidingWindow.clear();
-                        }
-                        else {
-
-                            double minDelta = SlidingWindow.GetMinDistanceNextSlidingWindow();
-                            boolean endResearch = false; int lastIndex = -1;
-                            for (int j = 0; j < valuesForSlidingWindow.size() && !endResearch; j++) {
-                                if (valuesForSlidingWindow.get(j).getTimestamp() - valuesForSlidingWindow.get(0).getTimestamp() > minDelta) {
-                                    lastIndex = j;
-                                    endResearch = true;
-                                }
-                            }
-                            valuesForSlidingWindow = valuesForSlidingWindow.subList(lastIndex, valuesForSlidingWindow.size());
-                        }
+                        valuesForSlidingWindow.clear();
                     }
                     else {
                         valuesForSlidingWindow.add(finalValue);
@@ -149,5 +131,9 @@ public class SmartphoneSimulator {
     
     public List<List<DataTime>> getSlidingWindowsValues() {
         return valuesSlidingWindows;
+    }
+    
+    public void setHistoryCoefficient(Double value) {
+        this.historyCoefficientValue = value;
     }
 }

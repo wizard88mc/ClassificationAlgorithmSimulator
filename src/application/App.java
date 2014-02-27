@@ -33,19 +33,38 @@ public class App {
              * First test with non linear values
              */
             SlidingWindow.SetFrequency(40);
-            SlidingWindow.SetWindowDuration(500000000.0);
             List<DataTimeWithRotationValues> listValues = dbExtractor.getListPoints(false);
             
+            Double[] historyCoefficientValues = new Double[]{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
             
-            smartphone = new SmartphoneSimulator(listValues, bufferDuration, false, true);
+            for (Double value: historyCoefficientValues) {
+                
+                smartphone = new SmartphoneSimulator(listValues, bufferDuration, false, true);
+                smartphone.setHistoryCoefficient(value);
             
-            List<Result> results = smartphone.actAsSmartphone();
+                List<Result> results = smartphone.actAsSmartphone();
             
-            List<List<DataTime>> windows = smartphone.getSlidingWindowsValues();
-            
-            new AllDataGraph(results, windows);
+                List<List<DataTime>> windows = smartphone.getSlidingWindowsValues();
+                new AllDataGraph(results, windows);
+                
+                System.out.println("Test coefficiente storia: " + value);
+                System.out.println("Numero gradini identificati: " + getTotalNumberOfStairs(results));
+                System.out.println("*************************************************************");
+            }
         }
         
+    }
+    
+    private static int getTotalNumberOfStairs(List<Result> results) {
+        int totalNumber = 0;
+        
+        for (Result result: results) {
+            if (result.getClassificationInt() > 0) {
+                totalNumber++;
+            }
+        }
+        
+        return totalNumber;
     }
     
 }

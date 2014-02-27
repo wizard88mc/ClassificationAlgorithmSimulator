@@ -13,12 +13,13 @@ public class SlidingWindow {
     private static int FREQUENCY = 1;
     private static int OVERLAPPING_WINDOWS = 4;
     private static double WINDOW_DURATION = 0.0;
-    private List<Double> means = new ArrayList<Double>();
-    private List<Double> stds = new ArrayList<Double>();
-    private List<Double> variances = new ArrayList<Double>();
-    private List<Double> diffMinMax = new ArrayList<Double>();
-    private List<Double> ratios = new ArrayList<Double>();
-    private List<Double> correlations = new ArrayList<Double>();
+    private List<Double> means = new ArrayList<>();
+    private List<Double> stds = new ArrayList<>();
+    private List<Double> variances = new ArrayList<>();
+    private List<Double> diffMinMax = new ArrayList<>();
+    private List<Double> ratios = new ArrayList<>();
+    private List<Double> intelligentRatios = new ArrayList<>();
+    private List<Double> correlations = new ArrayList<>();
     private double magnitudeMean = 0.0;
     private double signalMagnitudeArea = 0.0;
     
@@ -141,6 +142,9 @@ public class SlidingWindow {
         diffMinMax.add(maxes[0] - mins[0]); diffMinMax.add(maxes[1] - mins[1]);
         diffMinMax.add(maxes[2] - mins[2]); diffMinMax.add(maxes[3] - mins[3]);
         diffMinMax.add(maxes[4] - mins[4]);
+        
+        intelligentRatios.add(maxes[2] / maxes[4]);
+        intelligentRatios.add(mins[2] / mins[4]);
     }
     
     private void calculateRatios() {
@@ -251,6 +255,7 @@ public class SlidingWindow {
         }
         
         features.addAll(ratios);
+        features.addAll(intelligentRatios);
         features.addAll(correlations);
         features.add(magnitudeMean);
         features.add(signalMagnitudeArea);
