@@ -40,7 +40,7 @@ public class SmartphoneSimulator {
         
         for (int i = 0; i < values.size(); i++) {
             
-            if ((values.get(i).timestamp - buffer.get(buffer.size() - 1).timestamp) > SlidingWindow.getMinDelta()) {
+            if ((i == 0) || (values.get(i).timestamp - buffer.get(buffer.size() - 1).timestamp) > SlidingWindow.getMinDelta()) {
             
                 if (buffer.size() > 0 && (values.get(i).timestamp - buffer.get(0).timestamp 
                         > bufferDuration)) {
@@ -95,7 +95,9 @@ public class SmartphoneSimulator {
                         double classificationOutput = 0;
                         try {
                             
-                            classificationOutput = Classifier.classify(allFeatures);
+                            //classificationOutput = Classifier.classify(allFeatures);
+                            
+                            classificationOutput = Classifier.classifyTree(allFeatures.toArray());
                             
                             // classificationOutput = classificationOutput * historyCoefficientValue
                             
@@ -123,7 +125,6 @@ public class SmartphoneSimulator {
                 }
             }
         }
-        System.out.println("Number of steps: " + numberOfStairs);
         return listResults;
     }
     
