@@ -103,10 +103,6 @@ public class SmartphoneSimulator {
                                 valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp,
                                      classificationOutput));
                         
-                            if (classificationOutput > 0.0) {
-                                numberOfStairs++;
-                            }
-                        
                         }
                         catch(Exception exc) {
                             System.out.println(exc.toString());
