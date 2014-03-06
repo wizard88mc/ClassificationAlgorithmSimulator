@@ -15,6 +15,8 @@ public class Result {
     private String classificationOutput;
     private double classificationOutputCoefficient;
     private int classificationOutputInt;
+    private static String STAIRS = "STAIRS";
+    private static String NON_STAIRS = "NON_STAIRS";
     
     public Result(double startTimestamp, double endTimestamp,
             double classificationOutputCoefficient) {
@@ -28,12 +30,22 @@ public class Result {
     
     private String getClassificationStringOutput(double coefficientResult) {
         
-        return "STAIRS";
+        if (coefficientResult > 0) {
+            return Result.STAIRS;
+        }
+        else {
+            return Result.NON_STAIRS;
+        }
     }
     
     private int getClassificationIntOutput(double coefficientResult) {
         
-        return 1;
+        if (coefficientResult > 0) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
     
     public double getStartTimestamp() {

@@ -95,13 +95,15 @@ public class SmartphoneSimulator {
                         double classificationOutput = 0;
                         try {
                             
-                            classificationOutput = Classifier.classify(allFeatures.toArray()) * historyCoefficientValue;
+                            classificationOutput = Classifier.classify(allFeatures);
+                            
+                            // classificationOutput = classificationOutput * historyCoefficientValue
                             
                             listResults.add(new Result(valuesForSlidingWindow.get(0).timestamp, 
                                 valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp,
                                      classificationOutput));
                         
-                            if (classificationOutput > tresholdForStep) {
+                            if (classificationOutput > 0.0) {
                                 numberOfStairs++;
                             }
                         
