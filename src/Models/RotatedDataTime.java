@@ -31,7 +31,7 @@ public class RotatedDataTime extends DataTime {
         
         x = ((xSquare + (1 - xSquare) * cosAlpha) * xFirst +
                 (((1 - cosAlpha) * xForRotation * yForRotation) - sinAlpha * zForRotation) * yFirst +
-                (((1 - cosAlpha) * xForRotation * zForRotation) + sinAlpha * y) * zFirst);
+                (((1 - cosAlpha) * xForRotation * zForRotation) + sinAlpha * yForRotation) * zFirst);
         
         y = ((((1 - cosAlpha) * yForRotation * xForRotation) + sinAlpha * zForRotation) * xFirst +
                 (ySquare + (1 - ySquare) * cosAlpha) * yFirst +

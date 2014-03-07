@@ -37,10 +37,11 @@ public class SmartphoneSimulator {
     public List<Result> actAsSmartphone() {
         
         List<Result> listResults = new ArrayList<Result>();
+        double lastConsideredTimestamp = 0.0;
         
         for (int i = 0; i < values.size(); i++) {
             
-            if ((i == 0) || (values.get(i).timestamp - buffer.get(buffer.size() - 1).timestamp) > SlidingWindow.getMinDelta()) {
+            if ((i == 0) || (values.get(i).timestamp - lastConsideredTimestamp >= SlidingWindow.getMinDelta())) {
             
                 if (buffer.size() > 0 && (values.get(i).timestamp - buffer.get(0).timestamp 
                         > bufferDuration)) {
@@ -95,9 +96,11 @@ public class SmartphoneSimulator {
                         double classificationOutput = 0;
                         try {
                             
-                            //classificationOutput = Classifier.classify(allFeatures);
+                            classificationOutput = Classifier.classify(allFeatures);
                             
-                            classificationOutput = Classifier.classifyTree(allFeatures.toArray());
+                            System.out.println(classificationOutput);
+                            
+                            //classificationOutput = Classifier.classifyTree(allFeatures.toArray());
                             
                             // classificationOutput = classificationOutput * historyCoefficientValue
                             
@@ -123,6 +126,8 @@ public class SmartphoneSimulator {
                     buffer.remove(0);
                     buffer.add(values.get(i));
                 }
+                
+                lastConsideredTimestamp = values.get(i).timestamp;
             }
         }
         return listResults;
