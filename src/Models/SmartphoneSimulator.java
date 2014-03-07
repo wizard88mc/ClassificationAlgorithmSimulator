@@ -95,9 +95,9 @@ public class SmartphoneSimulator {
                         double classificationOutput = 0;
                         try {
                             
-                            //classificationOutput = Classifier.classify(allFeatures);
+                            classificationOutput = Classifier.classify(allFeatures);
                             
-                            classificationOutput = Classifier.classifyTree(allFeatures.toArray());
+                            //classificationOutput = Classifier.classifyTree(allFeatures.toArray());
                             
                             // classificationOutput = classificationOutput * historyCoefficientValue
                             

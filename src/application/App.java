@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class App {
     
-    private static String[] testDBS = {"accelbench_20140127113057.db"}; 
+    private static String[] testDBS = {"accelbench_20140307151200.db"}; 
     private static SqliteDatabaseExtractor dbExtractor;
     private static SmartphoneSimulator smartphone;
     
