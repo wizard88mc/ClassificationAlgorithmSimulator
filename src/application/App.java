@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class App {
     
-    private static String[] testDBS = {"accelbench_20140307151200.db"}; 
+    private static String[] testDBS = {"accelbench_20140127113057.db"}; 
     private static SqliteDatabaseExtractor dbExtractor;
     private static SmartphoneSimulator smartphone;
     
@@ -37,19 +37,15 @@ public class App {
             SlidingWindow.SetFrequency(30);
             List<DataTimeWithRotationValues> listValues = dbExtractor.getListPoints(false);
             
-            Double[] historyCoefficientValues = new Double[]{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-            
             //for (Double value: historyCoefficientValues) {
                 
                 smartphone = new SmartphoneSimulator(listValues, bufferDuration, false, true);
-                smartphone.setHistoryCoefficient(0.5);
             
                 List<Result> results = smartphone.actAsSmartphone();
             
                 List<List<DataTime>> windows = smartphone.getSlidingWindowsValues();
                 new AllDataGraph(results, windows);
                 
-                System.out.println("Test coefficiente storia: " + 0.0);
                 System.out.println("Numero di finestre analizzate: " + results.size());
                 System.out.println("Numero gradini identificati: " + getTotalNumberOfStairs(results));
                 System.out.println("Valore medio per gradini: " + calculateMeanValueForStair(results));
