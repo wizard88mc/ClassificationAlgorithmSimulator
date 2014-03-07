@@ -47,7 +47,7 @@ public class App {
                 List<Result> results = smartphone.actAsSmartphone();
             
                 List<List<DataTime>> windows = smartphone.getSlidingWindowsValues();
-                //new AllDataGraph(results, windows);
+                new AllDataGraph(results, windows);
                 
                 System.out.println("Test coefficiente storia: " + 0.0);
                 System.out.println("Numero di finestre analizzate: " + results.size());
@@ -97,8 +97,8 @@ public class App {
         for (Result result: results) {
             
             if (result.getClassificationInt() <= 0) {
-                if (!Double.isInfinite(result.getClassificationCoefficient()) || 
-                        Double.isNaN(result.getClassificationCoefficient()))
+                if (!Double.isInfinite(result.getClassificationCoefficient()) && 
+                        !Double.isNaN(result.getClassificationCoefficient()))
                 mean += result.getClassificationCoefficient();
                 i++;
             }

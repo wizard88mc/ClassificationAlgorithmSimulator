@@ -61,6 +61,7 @@ public class SqliteDatabaseExtractor {
             
             //String query = "SELECT * FROM " + getRightDB(linear) + " ORDER BY timestamp";
             String query = "SELECT * FROM " + getRightDB(linear) + " WHERE action=\"NON_STAIR\" AND trunk=4";
+
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             
