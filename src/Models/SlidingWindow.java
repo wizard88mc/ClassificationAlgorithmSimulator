@@ -158,6 +158,12 @@ public class SlidingWindow {
                 ratios.add(diffMinMax.get(i) / diffMinMax.get(j));
             }
         }
+        
+        for (int i = 0; i < ratios.size(); i++) {
+            if (Double.isNaN(ratios.get(i)) || Double.isInfinite(ratios.get(i))) {
+                ratios.set(i, 0.0);
+            }
+        }
     }
     
     /**

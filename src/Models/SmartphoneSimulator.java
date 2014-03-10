@@ -26,7 +26,7 @@ public class SmartphoneSimulator {
     private List<List<DataTime>> valuesSlidingWindows = new ArrayList<>();
     private static double tradeoffG = 0.001;
     private static double g = tradeoffG / (double)100;
-    private static List<Integer> history = new ArrayList<>();
+    private static List<Double> history = new ArrayList<>();
     private static int historySize = 10;
     
     public SmartphoneSimulator(List<DataTimeWithRotationValues> values, double bufferDuration, 
@@ -35,13 +35,22 @@ public class SmartphoneSimulator {
         this.linear = linear; 
         
         for (int i = 0; i < historySize; i++) {
-            history.add(0);
+            history.add(0.0);
         }
+    }
+    
+    public static void SetTradeOffG(double value) {
+        tradeoffG = value;
+        g = tradeoffG / (double) 100;
+    }
+    
+    public static void SetHistorySize(int value) {
+        historySize = value;
     }
     
     public List<Result> actAsSmartphone() {
         
-        List<Result> listResults = new ArrayList<Result>();
+        List<Result> listResults = new ArrayList<>();
         double lastConsideredTimestamp = 0.0;
         
         for (int i = 0; i < values.size(); i++) {
@@ -103,9 +112,17 @@ public class SmartphoneSimulator {
                             
                             classificationOutput = Classifier.classify(allFeatures);
                             
+                            if (Double.isNaN(classificationOutput)) {
+                                System.out.println("Classification not a number");
+                            }
+                            
                             double correction = 0.0;
                             for (int indexHistory = 0; indexHistory < historySize; indexHistory++) {
                                 correction += (100 / Math.pow(2, indexHistory + 1)) * (double)history.get(indexHistory) * g;
+                                //correction += (tradeoffG / historySize) * history.get(indexHistory);
+                            }
+                            if (Double.isNaN(correction)) {
+                                System.out.println(correction);
                             }
                             
                             classificationOutput += correction;
@@ -118,8 +135,13 @@ public class SmartphoneSimulator {
                             
                             listResults.add(result);
                             
-                            history.remove(historySize - 1);
-                            history.add(0, result.getClassificationInt());
+                            if (historySize != 0) {
+                                history.remove(historySize - 1);
+                                history.add(0, (double)result.getClassificationInt());
+                            }
+                            
+                            System.out.println("Inizio: " + result.getStartTimestamp() + ", Fine: " + result.getEndTimestamp() + ", Classificatione: " + 
+                                    result.getClassificationCoefficient());
                         
                         }
                         catch(Exception exc) {

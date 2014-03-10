@@ -10,13 +10,13 @@ package Models;
  */
 public class Result {
     
-    private double startTimestamp;
-    private double endTimestamp;
-    private String classificationOutput;
-    private double classificationOutputCoefficient;
-    private int classificationOutputInt;
-    private static String STAIRS = "STAIRS";
-    private static String NON_STAIRS = "NON_STAIRS";
+    private final double startTimestamp;
+    private final double endTimestamp;
+    private final String classificationOutput;
+    private final double classificationOutputCoefficient;
+    private final int classificationOutputInt;
+    private final static String STAIRS = "STAIRS";
+    private final static String NON_STAIRS = "NON_STAIRS";
     
     public Result(double startTimestamp, double endTimestamp,
             double classificationOutputCoefficient) {
