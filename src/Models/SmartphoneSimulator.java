@@ -32,11 +32,7 @@ public class SmartphoneSimulator {
     public SmartphoneSimulator(List<DataTimeWithRotationValues> values, double bufferDuration, 
             boolean linear, boolean shutDownClassificationAfterStairs) {
         this.values = values; this.bufferDuration = bufferDuration; 
-        this.linear = linear; 
-        
-        for (int i = 0; i < historySize; i++) {
-            history.add(0.0);
-        }
+        this.linear = linear;
     }
     
     public static void SetTradeOffG(double value) {
@@ -107,17 +103,12 @@ public class SmartphoneSimulator {
                          */
                         List<Double> allFeatures = window.getAllFeatures();
                         
-                        double classificationOutput = 0;
                         try {
                             
-                            classificationOutput = Classifier.classify(allFeatures);
-                            
-                            if (Double.isNaN(classificationOutput)) {
-                                System.out.println("Classification not a number");
-                            }
+                            double classificationOutput = Classifier.classify(allFeatures);
                             
                             double correction = 0.0;
-                            for (int indexHistory = 0; indexHistory < historySize; indexHistory++) {
+                            for (int indexHistory = 0; indexHistory < history.size(); indexHistory++) {
                                 correction += (100 / Math.pow(2, indexHistory + 1)) * (double)history.get(indexHistory) * g;
                                 //correction += (tradeoffG / historySize) * history.get(indexHistory);
                             }
@@ -125,20 +116,43 @@ public class SmartphoneSimulator {
                                 System.out.println(correction);
                             }
                             
-                            classificationOutput += correction;
+                            double finalClassificationWithCorrection = classificationOutput + correction;
                            
                             //classificationOutput = Classifier.classifyTree(allFeatures.toArray());
                             
                             Result result = new Result(valuesForSlidingWindow.get(0).timestamp, 
                                 valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp,
-                                     classificationOutput);
+                                     finalClassificationWithCorrection);
                             
                             listResults.add(result);
                             
-                            if (historySize != 0) {
-                                history.remove(historySize - 1);
-                                history.add(0, (double)result.getClassificationInt());
+                            
+                            /**
+                             * No correction from the history
+                             */
+                            if (classificationOutput * finalClassificationWithCorrection >= 0) {
+                                if (history.size() == historySize) {
+                                    history.remove(historySize - 1);
+                                    history.add(0, (double)result.getClassificationInt());
+                                }
+                                else {
+                                    history.add(0, (double)result.getClassificationInt());
+                                }
                             }
+                            /**
+                             * There is a difference between the classification 
+                             * output and the final output with correction
+                             */
+                            else {
+                                history.clear();
+                                if (classificationOutput > 0) {
+                                    history.add(0, 1.0);
+                                }
+                                else {
+                                    history.add(0, -1.0);
+                                }
+                            } 
+                            
                             
                             System.out.println("Inizio: " + result.getStartTimestamp() + ", Fine: " + result.getEndTimestamp() + ", Classificatione: " + 
                                     result.getClassificationCoefficient());
