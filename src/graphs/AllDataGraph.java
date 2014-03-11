@@ -121,9 +121,11 @@ public class AllDataGraph extends javax.swing.JFrame {
         }
         
         series_container.add(seriesX); series_container.add(seriesY); series_container.add(seriesZ);
-        series_container.add(seriesCoefficient); series_container.add(seriesClassification);
+        series_container.add(seriesCoefficient); 
+        series_container.add(seriesClassification);
         dataset.addSeries(seriesX); dataset.addSeries(seriesY); dataset.addSeries(seriesZ);
-        dataset.addSeries(seriesCoefficient); dataset.addSeries(seriesClassification);
+        dataset.addSeries(seriesCoefficient); 
+        dataset.addSeries(seriesClassification);
         
         return dataset;
     }

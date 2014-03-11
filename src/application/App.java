@@ -42,7 +42,7 @@ public class App {
             //for (Integer history: historyLength) {
             //for (Double valueG: valuesTradeOffG) {
                 
-                SmartphoneSimulator.SetHistorySize(10);
+                SmartphoneSimulator.SetHistorySize(5);
                 SmartphoneSimulator.SetTradeOffG(0.002);
                 smartphone = new SmartphoneSimulator(listValues, bufferDuration, false, true);
             

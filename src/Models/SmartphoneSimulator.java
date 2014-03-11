@@ -28,6 +28,8 @@ public class SmartphoneSimulator {
     private static double g = tradeoffG / (double)100;
     private static List<Double> history = new ArrayList<>();
     private static int historySize = 10;
+    private static final Double MIN_VALUE_WINDOW = /*Double.MIN_VALUE;//*/300000000.0; // 300 ms
+    private static final Double MAX_VALUE_WINDOW = /*Double.MAX_VALUE;//*/2000000000.0; // 2 secondi
     
     public SmartphoneSimulator(List<DataTimeWithRotationValues> values, double bufferDuration, 
             boolean linear, boolean shutDownClassificationAfterStairs) {
@@ -87,83 +89,90 @@ public class SmartphoneSimulator {
                     if (valuesForSlidingWindow.size() > 0 && valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).z
                             <= 0 && finalValue.z >= 0) {
 
+                        double classificationOutput = -0.001, finalClassificationWithCorrection = -0.001;
+                        Result result = null;
+                        
+                        
+                            
                         SlidingWindow window = new SlidingWindow(valuesForSlidingWindow);
-                        
+
                         List<DataTime> valori = new ArrayList<>();
-                        
+
                         for (int j = 0; j < window.getValues().size(); j++) {
                             RotatedDataTime value = window.getValues().get(j);
                             valori.add(new DataTime(value.getTimestamp(), value.getX(), value.getY(), value.getZ()));
                         }
-                        
+
                         valuesSlidingWindows.add(valori);
 
+                            if (valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp 
+                                - valuesForSlidingWindow.get(0).timestamp > MIN_VALUE_WINDOW && 
+                                valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp
+                                - valuesForSlidingWindow.get(0).timestamp < MAX_VALUE_WINDOW) {
+                            /**
+                             * Get all features from the sliding window
+                             */
+                            List<Double> allFeatures = window.getAllFeatures();
+
+                            try {
+
+                                classificationOutput = Classifier.classify(allFeatures);
+
+                                double correction = 0.0;
+                                for (int indexHistory = 0; indexHistory < history.size(); indexHistory++) {
+                                    correction += (100 / Math.pow(2, indexHistory + 1)) * (double)history.get(indexHistory) * g;
+                                    //correction += (tradeoffG / historySize) * history.get(indexHistory);
+                                }
+                                if (Double.isNaN(correction)) {
+                                    System.out.println(correction);
+                                }
+
+                                finalClassificationWithCorrection = classificationOutput + correction;
+
+                                //classificationOutput = Classifier.classifyTree(allFeatures.toArray());
+                            }
+                            catch(Exception exc) {
+                                System.out.println(exc.toString());
+                                exc.printStackTrace();
+                            }
+                        }
+                        result = new Result(valuesForSlidingWindow.get(0).timestamp, 
+                                    valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp,
+                                         finalClassificationWithCorrection);
+
+                        listResults.add(result);
+
                         /**
-                         * Get all features from the sliding window
+                         * No correction from the history
                          */
-                        List<Double> allFeatures = window.getAllFeatures();
-                        
-                        try {
-                            
-                            double classificationOutput = Classifier.classify(allFeatures);
-                            
-                            double correction = 0.0;
-                            for (int indexHistory = 0; indexHistory < history.size(); indexHistory++) {
-                                correction += (100 / Math.pow(2, indexHistory + 1)) * (double)history.get(indexHistory) * g;
-                                //correction += (tradeoffG / historySize) * history.get(indexHistory);
+                        if (classificationOutput * finalClassificationWithCorrection >= 0) {
+                            if (history.size() == historySize) {
+                                history.remove(historySize - 1);
+                                history.add(0, (double)result.getClassificationInt());
                             }
-                            if (Double.isNaN(correction)) {
-                                System.out.println(correction);
-                            }
-                            
-                            double finalClassificationWithCorrection = classificationOutput + correction;
-                           
-                            //classificationOutput = Classifier.classifyTree(allFeatures.toArray());
-                            
-                            Result result = new Result(valuesForSlidingWindow.get(0).timestamp, 
-                                valuesForSlidingWindow.get(valuesForSlidingWindow.size() - 1).timestamp,
-                                     finalClassificationWithCorrection);
-                            
-                            listResults.add(result);
-                            
-                            
-                            /**
-                             * No correction from the history
-                             */
-                            if (classificationOutput * finalClassificationWithCorrection >= 0) {
-                                if (history.size() == historySize) {
-                                    history.remove(historySize - 1);
-                                    history.add(0, (double)result.getClassificationInt());
-                                }
-                                else {
-                                    history.add(0, (double)result.getClassificationInt());
-                                }
-                            }
-                            /**
-                             * There is a difference between the classification 
-                             * output and the final output with correction
-                             */
                             else {
-                                history.clear();
-                                if (classificationOutput > 0) {
-                                    history.add(0, 1.0);
-                                }
-                                else {
-                                    history.add(0, -1.0);
-                                }
-                            } 
-                            
-                            
-                            System.out.println("Inizio: " + result.getStartTimestamp() + ", Fine: " + result.getEndTimestamp() + ", Classificatione: " + 
-                                    result.getClassificationCoefficient());
-                        
+                                history.add(0, (double)result.getClassificationInt());
+                            }
                         }
-                        catch(Exception exc) {
-                            System.out.println(exc.toString());
-                            exc.printStackTrace();
+                        /**
+                         * There is a difference between the classification 
+                         * output and the final output with correction
+                         */
+                        else {
+                            history.clear();
+                            if (classificationOutput > 0) {
+                                history.add(0, 1.0);
+                            }
+                            else {
+                                history.add(0, -1.0);
+                            }
                         }
-                        
+
+                        System.out.println("Inizio: " + result.getStartTimestamp() + ", Fine: " + result.getEndTimestamp() + ", Classificatione: " + 
+                                result.getClassificationCoefficient());
+
                         valuesForSlidingWindow.clear();
+                        valuesForSlidingWindow.add(finalValue);
                     }
                     else {
                         valuesForSlidingWindow.add(finalValue);
