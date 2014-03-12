@@ -11,8 +11,6 @@ public class SlidingWindow {
     
     private List<RotatedDataTime> values;
     private static int FREQUENCY = 1;
-    private static int OVERLAPPING_WINDOWS = 4;
-    private static double WINDOW_DURATION = 0.0;
     private List<Double> means = new ArrayList<>();
     private List<Double> stds = new ArrayList<>();
     private List<Double> variances = new ArrayList<>();
@@ -38,18 +36,6 @@ public class SlidingWindow {
     
     public static void SetFrequency(int frequency) {
         SlidingWindow.FREQUENCY = frequency;
-    }
-    
-    public static void SetWindowDuration(double duration) {
-        SlidingWindow.WINDOW_DURATION = duration;
-    }
-    
-    public static double GetMinDistanceNextSlidingWindow() {
-        return SlidingWindow.WINDOW_DURATION / (double)OVERLAPPING_WINDOWS;
-    }
-    
-    public static double GetWindowDuration() {
-        return SlidingWindow.WINDOW_DURATION;
     }
     
     public static double getMinDelta() {
@@ -144,7 +130,7 @@ public class SlidingWindow {
         diffMinMax.add(maxes[4] - mins[4]);
         
         intelligentRatios.add(maxes[2] / maxes[4]);
-        intelligentRatios.add(mins[2] / mins[4]);
+        intelligentRatios.add(Math.abs(mins[2] / mins[4]));
     }
     
     private void calculateRatios() {

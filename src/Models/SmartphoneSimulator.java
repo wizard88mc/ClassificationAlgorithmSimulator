@@ -91,8 +91,6 @@ public class SmartphoneSimulator {
 
                         double classificationOutput = -0.001, finalClassificationWithCorrection = -0.001;
                         Result result = null;
-                        
-                        
                             
                         SlidingWindow window = new SlidingWindow(valuesForSlidingWindow);
 
