@@ -27,6 +27,7 @@ public class Classifier {
     public static void initializeParameters() throws FileNotFoundException, IOException {
 
         BufferedReader reader = new BufferedReader(new FileReader(new File("models/model_VSW30OS_l0.1_cut.txt")));
+        //BufferedReader reader = new BufferedReader(new FileReader(new File("models/New_model_VSW30OS_l0.1.txt")));
         String line;
         
         /**
