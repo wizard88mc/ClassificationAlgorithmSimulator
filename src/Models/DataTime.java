@@ -12,7 +12,7 @@ public class DataTime extends Object{
     protected double y;
     protected double z;
     
-    DataTime(double timestamp, double x, double y, double z) {
+    public DataTime(double timestamp, double x, double y, double z) {
         this.timestamp =  timestamp;
         this.x = x; this.y = y; this.z = z;
     }

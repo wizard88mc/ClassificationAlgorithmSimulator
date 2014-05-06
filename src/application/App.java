@@ -2,9 +2,8 @@ package application;
 
 import DBManager.SqliteDatabaseExtractor;
 import Models.DataTime;
-import Models.DataTimeWithRotationValues;
+import Models.FeatureSet;
 import Models.Result;
-import Models.SlidingWindow;
 import Models.SmartphoneSimulator;
 import classifier.Classifier;
 import graphs.AllDataGraph;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class App {
     
-    private static String[] testDBS = {"accelbench_20140310155938.db"}; 
+    private static String[] testDBS = {"accelbench_prova_tasca.db"}; 
     private static SqliteDatabaseExtractor dbExtractor;
     private static SmartphoneSimulator smartphone;
     private static Double[] valuesTradeOffG = new Double[]{0.000, 0.001, 0.0015, 0.002, 0.0025, 0.003};
@@ -30,20 +29,18 @@ public class App {
         
         for (String db: testDBS) {
             
-            Double bufferDuration = 500000000.0;
-            
             dbExtractor = new SqliteDatabaseExtractor(new File("test/" + db));
             /**
              * First test with non linear values
              */
-            SlidingWindow.SetFrequency(30);
-            List<DataTimeWithRotationValues> listValues = dbExtractor.getListPoints(false);
+            FeatureSet.SetFrequency(30);
+            List<DataTime> listValues = dbExtractor.getListPoints(false);
             
             //for (Integer history: historyLength) {
             //for (Double valueG: valuesTradeOffG) {
                 
                 SmartphoneSimulator.SetHistorySize(5);
-                SmartphoneSimulator.SetTradeOffG(0.002);
+                SmartphoneSimulator.SetTradeOffG(0.000);
                 smartphone = new SmartphoneSimulator(listValues, bufferDuration, false, true);
             
                 List<Result> results = smartphone.actAsSmartphone();
