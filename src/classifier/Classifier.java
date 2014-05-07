@@ -100,8 +100,7 @@ public class Classifier {
 
     }
     
-    
-    public static double classify(List<Double> w) {
+    public static double classifyWithoutGravity(List<Double> w) {
         
         double classification = 0.0;
         

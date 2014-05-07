@@ -1,7 +1,7 @@
 package Models;
 
 /**
- * This class is responsible to keep truck of the result of the classification, 
+ * This class is responsible to keep track of the result of the classification, 
  * keeping track of the beginning and end of the sliding window, the output as
  * a String and the value of the coefficient used to weight the output of the 
  * classification algorithm with the history of the system. 
@@ -15,17 +15,28 @@ public class Result {
     private final String classificationOutput;
     private final double classificationOutputCoefficient;
     private final int classificationOutputInt;
+    private final double correctClassificationCoefficient;
     private final static String STAIRS = "STAIRS";
-    private final static String NON_STAIRS = "NON_STAIRS";
+    private final static String NON_STAIRS = "NON_STAIR";
+    private final static String STAIR_UPSTAIR = "STAIR_UPSTAIRS";
+    private final static String STAIR_DOWNSTAIRS = "STAIR_DOWNSTAIRS";
     
     public Result(double startTimestamp, double endTimestamp,
-            double classificationOutputCoefficient) {
+            double classificationOutputCoefficient, String windowCorrectClassification) {
         
         this.startTimestamp = startTimestamp; this.endTimestamp = endTimestamp;
         this.classificationOutputCoefficient = classificationOutputCoefficient;
         
         this.classificationOutput = getClassificationStringOutput(classificationOutputCoefficient);
         this.classificationOutputInt = getClassificationIntOutput(classificationOutputCoefficient);
+        
+        if (windowCorrectClassification.equals(Result.STAIR_UPSTAIR) || 
+                windowCorrectClassification.equals(Result.STAIR_DOWNSTAIRS)) {
+            correctClassificationCoefficient = 1.0;
+        }
+        else {
+            correctClassificationCoefficient = -1.0;
+        }
     }
     
     private String getClassificationStringOutput(double coefficientResult) {
@@ -66,5 +77,41 @@ public class Result {
     
     public int getClassificationInt() {
         return classificationOutputInt;
+    }
+    
+    public boolean isTruePositive() {
+        if (classificationOutputCoefficient > 0 && correctClassificationCoefficient > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public boolean isTrueNegative() {
+        if (classificationOutputCoefficient < 0 && correctClassificationCoefficient < 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public boolean isFalsePositive() {
+        if (classificationOutputCoefficient > 0 && correctClassificationCoefficient < 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public boolean isFalseNegative() {
+        if (classificationOutputCoefficient < 0 && correctClassificationCoefficient > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

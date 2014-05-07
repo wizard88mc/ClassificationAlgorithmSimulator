@@ -9,6 +9,7 @@ package DBManager;
 import Models.DataTime;
 import Models.SlidingWindow;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,9 +22,12 @@ import java.util.List;
  */
 public class DBTextReader {
     
-    private static String BASE_FOLDER = "";
-    private static String TEST_FILE = "";
+    private static String BASE_FOLDER = "test";
+    private String testFilename = "";
     
+    public DBTextReader(String testFile) {
+        this.testFilename = testFile;
+    }
     /**
      * Retrieves the test sliding windows 
      * 
@@ -36,7 +40,7 @@ public class DBTextReader {
             
         try {
             
-            BufferedReader reader = new BufferedReader(new FileReader(BASE_FOLDER + TEST_FILE));
+            BufferedReader reader = new BufferedReader(new FileReader(BASE_FOLDER + File.separator + testFilename));
             
             String line = "";
             while ((line = reader.readLine()).contains("@")) {}
@@ -53,16 +57,16 @@ public class DBTextReader {
             while (line != null) {
                 line = line.replace("(", "").replace(")", "");
 
-                String[] elements = line.split(",");
+                String[] elements = line.split(";");
                 /**
-                * elements[0]: timestamp *
-                * elements[1,2,3]: x,y,z *
-                * elements[4,5,6]: xPMitzell, yPMitzell, zPMitzell
+                * elements[0]: timestamp 
+                * elements[1,2,3]: x,y,z
+                * elements[4,5,6]: xPMitzell, yPMitzell, zPMitzell 
                 * elements[7,8,9]: xHMitzell, yHMitzell, zHMitzell
-                * elements[10]: action *
-                * elements[11]: mode *
-                * elements[12]: trunk *
-                * elements[13]: isLinear *
+                * elements[10]: action 
+                * elements[11]: mode 
+                * elements[12]: trunk 
+                * elements[13]: isLinear 
                 */
                 
                 /**
@@ -77,7 +81,7 @@ public class DBTextReader {
                     
                     lastWindowId = Integer.valueOf(elements[12]);
                     window = new SlidingWindow(elements[10], elements[11], 
-                            Boolean.valueOf(elements[13]));
+                            elements[13].equals("1"));
                     
                     windowValues = new ArrayList<>();
                     

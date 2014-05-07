@@ -28,8 +28,10 @@ public class SlidingWindow {
         this.values = values; this.valuesPMizell = valuesPMizell; this.valuesHMizell = valuesHMizell;
         
         featuresValues = new FeatureSet(this.values);
-        featuresPMizell = new FeatureSet(this.valuesPMizell);
-        featuresHMizell = new FeatureSet(this.valuesHMizell);
+        if (!linear) {
+            featuresPMizell = new FeatureSet(this.valuesPMizell);
+            featuresHMizell = new FeatureSet(this.valuesHMizell);
+        }
     }
     
     public List<DataTime> getValues() {
@@ -38,5 +40,25 @@ public class SlidingWindow {
     
     public boolean isLinear() {
         return this.linear;
+    }
+    
+    public Double getWindowDuration() {
+        return getEndTimestamp() - getBeginTimestamp();
+    }
+    
+    public Double getBeginTimestamp() {
+        return values.get(0).getTimestamp();
+    }
+    
+    public Double getEndTimestamp() {
+        return values.get(values.size() - 1).getTimestamp();
+    }
+    
+    public List<Double> getAllFeatures() {
+        return featuresValues.getAllFeatures();
+    }
+    
+    public String getAction() {
+        return action;
     }
 }

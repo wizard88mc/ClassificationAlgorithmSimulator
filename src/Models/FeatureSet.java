@@ -13,10 +13,10 @@ import java.util.List;
  *
  * @author Matteo
  */
-//TODO: Aggiungere gestione frequenza nel calcolo delle features
+
 public class FeatureSet {
     
-    private List<DataTime> values;
+    private List<DataTime> allValues;
     private List<Double> means = new ArrayList<>();
     private List<Double> stds = new ArrayList<>();
     private List<Double> variances = new ArrayList<>();
@@ -31,15 +31,35 @@ public class FeatureSet {
     
     public FeatureSet(List<DataTime> values) {
         
-        this.values = values;
+        this.allValues = values;
         calculateFeatures();
+    }
+    
+    /**
+     * Retrieves only the right values for a given frequency
+     * @return List<DataTime> values
+     */
+    private List<DataTime> getOnlyRightValues() {
+        List<DataTime> rightValues = new ArrayList<>();
+        rightValues.add(allValues.get(0));
+        
+        for (int i = 1; i < allValues.size(); i++) {
+            if (allValues.get(i).getTimestamp() - 
+                    rightValues.get(rightValues.size() - 1).getTimestamp() > getMinDelta()) {
+                rightValues.add(allValues.get(i));
+            }
+        }
+        
+        return rightValues;
     }
     
     private void calculateFeatures() {
         
-        calculateMeans(); calculateVariances(); calculateStds();
-        calculateDiffMinMax(); calculateRatios(); calculateCorrelations();
-        calculateMagnitudeMean(); calculateSignalMagnitudeArea();
+        List<DataTime> correctValues = getOnlyRightValues();
+        
+        calculateMeans(correctValues); calculateVariances(correctValues); calculateStds(correctValues);
+        calculateDiffMinMax(correctValues); calculateRatios(); calculateCorrelations(correctValues);
+        calculateMagnitudeMean(); calculateSignalMagnitudeArea(correctValues);
     }
     
     public static void SetFrequency(int frequency) {
@@ -53,13 +73,13 @@ public class FeatureSet {
         else return 0;
     }
     
-    private double getV(int index) {
+    private double getV(List<DataTime> values, int index) {
         return Math.sqrt(Math.pow(values.get(index).getX(), 2) + Math.pow(values.get(index).getY(), 2) +
                         Math.pow(values.get(index).getZ(), 2));
     } 
     
     //TO DO: manca gestione frequenza
-    private void calculateMeans() {
+    private void calculateMeans(List<DataTime> values) {
         
         double meanX = 0.0, meanY = 0.0, meanZ = 0.0, meanV = 0.0, meanXAndY = 0.0;
         
@@ -68,7 +88,7 @@ public class FeatureSet {
             meanX += values.get(i).getX();
             meanY += values.get(i).getY();
             meanZ += values.get(i).getZ();
-            meanV += getV(i);
+            meanV += getV(values, i);
             meanXAndY += ((values.get(i).getX() + values.get(i).getY()) / 2.0);
            
         }
@@ -83,7 +103,7 @@ public class FeatureSet {
     /**
      * Calculates the variances of all the axis
      */
-    private void calculateVariances() {
+    private void calculateVariances(List<DataTime> values) {
         
         double varianceX = 0.0, varianceY = 0.0, varianceZ = 0.0, varianceV = 0.0, 
                 varianceXAndY = 0.0;
@@ -93,7 +113,7 @@ public class FeatureSet {
             varianceX += Math.pow(values.get(i).getX() - means.get(0), 2);
             varianceY += Math.pow(values.get(i).getY() - means.get(1), 2);
             varianceZ += Math.pow(values.get(i).getZ() - means.get(2), 2);
-            varianceV += Math.pow(getV(i) - means.get(3), 2);
+            varianceV += Math.pow(getV(values, i) - means.get(3), 2);
             varianceXAndY += Math.pow(((values.get(i).getX() + values.get(i).getY()) / 2.0) - means.get(4), 2);
         }
         
@@ -104,7 +124,7 @@ public class FeatureSet {
         variances.add(varianceV); variances.add(varianceXAndY);
     }
     
-    private void calculateStds() {
+    private void calculateStds(List<DataTime> values) {
         
         for (int i = 0; i < variances.size(); i++) {
             stds.add(Math.sqrt(variances.get(i)));
@@ -120,7 +140,7 @@ public class FeatureSet {
         }
     }
     
-    private void calculateDiffMinMax() {
+    private void calculateDiffMinMax(List<DataTime> values) {
         
         double[] mins = {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE}, 
                 maxes = {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE};
@@ -129,7 +149,7 @@ public class FeatureSet {
             updateMinMax(values.get(i).x, mins, maxes, 0);
             updateMinMax(values.get(i).y, mins, maxes, 1);
             updateMinMax(values.get(i).z, mins, maxes, 2);
-            updateMinMax(getV(i), mins, maxes, 3);
+            updateMinMax(getV(values, i), mins, maxes, 3);
             updateMinMax((values.get(i).x + values.get(i).y) / 2.0, mins, maxes, 4);
         }
         
@@ -167,7 +187,7 @@ public class FeatureSet {
      * @param frequency: The frequency at which calculate the correlations and use
      * data
      */
-    private void calculateCorrelations() {
+    private void calculateCorrelations(List<DataTime> values) {
         
         List<ArrayList<Double>> setOfValues = new ArrayList<ArrayList<Double>>();
         
@@ -181,7 +201,7 @@ public class FeatureSet {
             setOfValues.get(0).add(values.get(i).getX());
             setOfValues.get(1).add(values.get(i).getY());
             setOfValues.get(2).add(values.get(i).getZ());
-            setOfValues.get(3).add(getV(i));
+            setOfValues.get(3).add(getV(values, i));
             setOfValues.get(4).add((values.get(i).getX() + values.get(i).getY()) / 2.0);
         }
         
@@ -233,7 +253,7 @@ public class FeatureSet {
             + Math.pow(means.get(2), 2));
     }
     
-    public void calculateSignalMagnitudeArea() {
+    public void calculateSignalMagnitudeArea(List<DataTime> values) {
         
         for (int i = 0; i < values.size(); i++) {
             
